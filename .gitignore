@@ -1,0 +1,11 @@
+node_modules/
+
+.vitepress/dist/
+.vitepress/cache/
+
+.DS_Store
+Thumbs.db
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
