@@ -12,7 +12,7 @@ hero:
       link: /1-基础篇/1-博客简介
     - theme: alt
       text: 资源
-      link: [https://github.com/NJUIS-Students/Resources]
+      link: https://github.com/NJUIS-Students/Resources
 
 features:
   - title: 资源丰富

@@ -17,7 +17,7 @@ const vitePressOptions = {
       provider: 'local'
     },
     nav: [
-      { text: 'Home', link: '/' },
+      { text: 'Blogs', link: '/1-基础篇/1-博客简介' },
       // { text: 'Examples', link: '/markdown-examples' }
     ],
 
