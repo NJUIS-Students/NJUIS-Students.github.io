@@ -36,7 +36,7 @@ const vitePressSidebarOptions = {
   collapsed: false,
   capitalizeFirst: true,
   // useTitleFromFrontmatter: true,
-  // sortMenusOrderNumericallyFromTitle: true,
+  sortMenusOrderNumericallyFromTitle: true,
   sortMenusOrderByDescending: false,
   removePrefixAfterOrdering: true,
   prefixSeparator: '-',
