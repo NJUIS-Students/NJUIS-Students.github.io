@@ -8,12 +8,11 @@
   </p>
 
   <p>
-    <a href="https://github.com/NJUIS-Students/NJUIS-Students.github.io/actions">
-      <img src="https://img.shields.io/github/actions/workflow/status/NJUIS-Students/NJUIS-Students.github.io/pages/pages-build-deployment?style=for-the-badge&label=Deploy" alt="deploy" />
+    <a href="https://github.com/NJUIS-Students/NJUIS-Students.github.io/actions/workflows/deploy.yml">
+      <img src="https://img.shields.io/github/actions/workflow/status/NJUIS-Students/NJUIS-Students.github.io/deploy.yml?style=for-the-badge&label=Deploy" alt="deploy" />
     </a>
     <img src="https://img.shields.io/badge/VitePress-2.0-blue?style=for-the-badge&logo=vite" alt="vitepress" />
     <img src="https://img.shields.io/badge/Docs-Community%20Driven-16a34a?style=for-the-badge" alt="community" />
-    <img src="https://img.shields.io/github/license/NJUIS-Students/NJUIS-Students.github.io?style=for-the-badge" alt="license" />
   </p>
 </div>
 
