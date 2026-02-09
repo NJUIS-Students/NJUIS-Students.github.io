@@ -25,38 +25,18 @@
 
 /* ===== Hero 区域 ===== */
 
-/* 标题 - 柔和双色流光 */
+/* 标题 - 逐字颜色波浪（JS 拆字后生效） */
 .VPHero .name .clip {
-  background: linear-gradient(90deg, #00e5ff, #7c4dff, #00e5ff) !important;
-  background-size: 200% 100% !important;
-  -webkit-background-clip: text !important;
-  background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  animation: gentle-flow 8s ease-in-out infinite !important;
+  -webkit-text-fill-color: unset !important;
+  background: none !important;
 }
 
-@keyframes gentle-flow {
-  0%, 100% { background-position: 0% 50%; }
-  50%      { background-position: 200% 50%; }
-}
-
-/* 标题柔和辉光 */
-.VPHero .name {
-  filter: drop-shadow(0 0 6px rgba(0, 229, 255, 0.25));
-}
-
-/* 副标题 - 逐字颜色波浪（JS 拆字后生效） */
-.VPHero .text {
-  letter-spacing: 0.06em;
-}
-
-/* JS 拆出的每个字母 span */
-.char-wave {
+.name-char-wave {
   display: inline-block !important;
-  animation: char-color-wave 2s ease-in-out infinite !important;
+  animation: name-wave 2s ease-in-out infinite !important;
 }
 
-@keyframes char-color-wave {
+@keyframes name-wave {
   0%, 100% {
     color: #00e5ff;
     text-shadow: 0 0 10px rgba(0, 229, 255, 0.6);
@@ -67,6 +47,11 @@
     text-shadow: 0 0 16px rgba(224, 64, 251, 0.7);
     transform: translateY(-4px);
   }
+}
+
+/* 副标题 - 简洁样式 */
+.VPHero .text {
+  letter-spacing: 0.06em;
 }
 
 /* Tagline - 持续颜色渐变 */

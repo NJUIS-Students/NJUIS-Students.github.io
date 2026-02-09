@@ -114,28 +114,22 @@ function applyAnimations() {
   // 等待 DOM 渲染完成
   requestAnimationFrame(() => {
     setTimeout(() => {
-      // 副标题 - 先解码再拆字做波浪
-      const heroText = document.querySelector('.VPHero .text')
-      if (heroText && !heroText.dataset.animated) {
-        const originalText = heroText.textContent.trim()
-        heroText.dataset.animated = 'true'
-
-        // 解码动画
-        scrambleDecode(heroText, originalText, 1500)
-
-        // 解码完成后拆成逐字 span 做颜色波浪
-        setTimeout(() => {
-          const finalText = originalText
-          heroText.innerHTML = ''
-          finalText.split('').forEach((ch, i) => {
-            const span = document.createElement('span')
-            span.textContent = ch === ' ' ? '\u00A0' : ch
-            span.className = 'char-wave'
-            span.style.animationDelay = `${i * 0.07}s`
-            heroText.appendChild(span)
-          })
-        }, 1700)
+      // 标题 - 拆字做颜色波浪
+      const heroName = document.querySelector('.VPHero .name .clip')
+      if (heroName && !heroName.dataset.animated) {
+        const originalText = heroName.textContent.trim()
+        heroName.dataset.animated = 'true'
+        heroName.innerHTML = ''
+        originalText.split('').forEach((ch, i) => {
+          const span = document.createElement('span')
+          span.textContent = ch
+          span.className = 'name-char-wave'
+          span.style.animationDelay = `${i * 0.12}s`
+          heroName.appendChild(span)
+        })
       }
+
+      // 副标题 - 无特殊动画，保持原样
 
       // Tagline - 打字机效果
       const tagline = document.querySelector('.VPHero .tagline')
