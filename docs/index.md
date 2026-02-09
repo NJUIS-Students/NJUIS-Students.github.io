@@ -5,7 +5,7 @@ layout: home
 hero:
   name: "智科全家桶"
   text: "NJU Intelligence Science & Technology"
-  tagline: "南京大学智能科学与技术学院 · 由学子共建的知识图谱"
+  tagline: "南京大学智能科学与技术学院 · wiki"
   actions:
     - theme: brand
       text: ⚡ 启动探索

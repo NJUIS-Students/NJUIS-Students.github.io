@@ -52,6 +52,14 @@
 /* 副标题 - 简洁样式 */
 .VPHero .text {
   letter-spacing: 0.06em;
+  white-space: nowrap;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+/* tagline 不换行 */
+.VPHero .tagline {
+  white-space: nowrap;
+  font-size: clamp(1rem, 2.5vw, 1.5rem);
 }
 
 /* Tagline - 持续颜色渐变 */
