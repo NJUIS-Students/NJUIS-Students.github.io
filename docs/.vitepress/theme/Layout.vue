@@ -7,6 +7,9 @@
     <template #home-features-after>
       <TechShowcase />
     </template>
+    <template #layout-bottom>
+      <CoursePageAutoTemplate />
+    </template>
   </DefaultTheme.Layout>
 </template>
 
@@ -14,6 +17,6 @@
 import DefaultTheme from 'vitepress/theme'
 import NeuralBackground from './components/NeuralBackground.vue'
 import TextAnimations from './components/TextAnimations.vue'
-
 import TechShowcase from './components/TechShowcase.vue'
+import CoursePageAutoTemplate from './components/CoursePageAutoTemplate.vue'
 </script>
