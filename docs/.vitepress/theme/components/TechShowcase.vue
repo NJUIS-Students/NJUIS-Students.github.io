@@ -1056,7 +1056,7 @@ onMounted(() => {
     const fW = 34, fH = 26, gap = 6
     const totalFW = frameCount * fW + (frameCount - 1) * gap
     const fStartX = (W - totalFW) / 2
-    const fStartY = 20
+    const fStartY = 45
 
     // 每帧中的移动物体
     const objects = Array.from({ length: 3 }, (_, i) => ({
@@ -1181,8 +1181,8 @@ onMounted(() => {
     const ctx = initCanvas(cvs)
     let time = 0
 
-    // 分子结构（居中）
-    const molCx = W * 0.3, molCy = H * 0.4
+    // 分子结构（垂直居中）
+    const molCx = W * 0.3, molCy = H * 0.48
     const atoms = [
       { x: 0, y: 0, r: 7, hue: 200, label: 'O' },
       { x: -18, y: 15, r: 5, hue: 0, label: 'H' },
@@ -1194,7 +1194,7 @@ onMounted(() => {
     const bonds = [[0, 1], [0, 2], [0, 3], [3, 4], [3, 5], [4, 5]]
 
     // 函数图像区域
-    const graphX = W * 0.55, graphY = 20, graphW = W * 0.38, graphH = H * 0.4
+    const graphX = W * 0.55, graphY = 45, graphW = W * 0.38, graphH = H * 0.4
 
     // 预测粒子
     let predParticles = []
