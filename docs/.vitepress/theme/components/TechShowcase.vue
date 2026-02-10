@@ -974,7 +974,7 @@ onMounted(() => {
       ctx.moveTo(cells[0].x - 10, hiddenY)
       ctx.lineTo(cells[cells.length - 1].x + cells[0].w + 10, hiddenY)
       ctx.stroke()
-      ctx.fillStyle = 'rgba(0,229,255,0.25)'; ctx.fillText('Hidden (h_t)', cells[0].x, hiddenY + 12)
+      ctx.fillStyle = 'rgba(0,229,255,0.25)'
 
       // 每个 LSTM 单元
       cells.forEach((cell, ci) => {
@@ -992,15 +992,7 @@ onMounted(() => {
           ctx.fillStyle = `${gateColors[gi]}${gAlpha})`
           ctx.beginPath(); ctx.arc(gx + 5, gy + 5, 5, 0, Math.PI * 2); ctx.fill()
 
-          ctx.fillStyle = `${gateColors[gi]}${gAlpha + 0.1})`
-          ctx.font = 'bold 7px serif'; ctx.fillText('σ', gx + 2, gy + 8)
-
-          ctx.fillStyle = `${gateColors[gi]}0.35)`
-          ctx.font = '5px monospace'; ctx.fillText(g, gx + 4, gy + 18)
         })
-
-        ctx.fillStyle = `rgba(180,130,255,${0.4 * pulse})`; ctx.font = '7px monospace'
-        ctx.fillText(`t${ci}`, cx + cell.w / 2 - 4, cy + cell.h - 26)
       })
 
       // Cell State 流粒子
@@ -1033,12 +1025,6 @@ onMounted(() => {
         ctx.beginPath(); ctx.moveTo(iCx, cell.y - 3); ctx.lineTo(iCx, stateY); ctx.stroke()
         ctx.strokeStyle = `rgba(0,230,118,${0.06 + Math.sin(time * 0.06 + ci + 2) * 0.04})`
         ctx.beginPath(); ctx.moveTo(oCx, cell.y + 13); ctx.lineTo(oCx, hiddenY); ctx.stroke()
-      })
-
-      // 输入标签
-      ctx.fillStyle = 'rgba(180,130,255,0.3)'; ctx.font = '7px monospace'
-      cells.forEach((cell, ci) => {
-        ctx.fillText(`x${ci}`, cell.x + cell.w / 2 - 4, cell.y + cell.h - 12)
       })
 
       animationIds[9] = requestAnimationFrame(frame)
