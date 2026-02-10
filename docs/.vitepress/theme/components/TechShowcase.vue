@@ -117,19 +117,19 @@ onMounted(() => {
     const ctx = initCanvas(cvs)
     let time = 0
 
-    // 特征图层（从大到小，模拟卷积+池化）
+    // 特征图层（从大到小，模拟卷积+池化，居中布局）
     const layers = [
-      { x: 18,  w: 36, h: 36, cells: 6, hue: 185, label: 'Input' },
-      { x: 66,  w: 30, h: 30, cells: 5, hue: 200, label: 'Conv1' },
-      { x: 108, w: 22, h: 22, cells: 4, hue: 220, label: 'Pool1' },
-      { x: 142, w: 16, h: 16, cells: 3, hue: 250, label: 'Conv2' },
-      { x: 170, w: 10, h: 10, cells: 2, hue: 270, label: 'Pool2' },
+      { x: 20,  w: 30, h: 30, cells: 5, hue: 185, label: 'Input' },
+      { x: 60,  w: 24, h: 24, cells: 4, hue: 200, label: 'Conv1' },
+      { x: 94,  w: 18, h: 18, cells: 3, hue: 220, label: 'Pool1' },
+      { x: 122, w: 15, h: 15, cells: 3, hue: 250, label: 'Conv2' },
+      { x: 148, w: 10, h: 10, cells: 2, hue: 270, label: 'Pool2' },
     ]
     // FC 层
     const fcNodes = [
-      { x: 210, count: 6 },
-      { x: 235, count: 4 },
-      { x: 258, count: 3 },
+      { x: 182, count: 6 },
+      { x: 210, count: 4 },
+      { x: 238, count: 3 },
     ]
 
     // 卷积核扫描位置
@@ -1312,10 +1312,15 @@ onMounted(() => {
 
   // 启动所有动画
   const starters = [startLLM, startDiffusion, startCV, startRL, startGAN, startKG, startMultimodal, startEmbodied, startNeuroSym, startLSTM, startVideo, startAIScience]
-  setTimeout(() => {
+  const started = new Set()
+  function tryInit() {
     const refs = canvasRefs.value
-    starters.forEach((fn, i) => { if (refs[i]) fn(refs[i]) })
-  }, 100)
+    starters.forEach((fn, i) => {
+      if (refs[i] && !started.has(i)) { fn(refs[i]); started.add(i) }
+    })
+    if (started.size < starters.length) setTimeout(tryInit, 200)
+  }
+  setTimeout(tryInit, 100)
 })
 
 onUnmounted(() => {
