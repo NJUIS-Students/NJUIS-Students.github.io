@@ -4,9 +4,9 @@
       <span class="tech-title-text">Frontier Technologies</span>
       <span class="tech-title-line" />
     </div>
-    <div class="tech-grid">
+    <div class="tech-grid" ref="gridRef">
       <div class="tech-card" v-for="(tech, i) in techs" :key="i">
-        <canvas :ref="el => { if (el) canvasRefs[i] = el }" class="tech-canvas" />
+        <canvas class="tech-canvas" />
         <div class="tech-info">
           <span class="tech-name">{{ tech.name }}</span>
           <span class="tech-desc">{{ tech.desc }}</span>
@@ -17,9 +17,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 
-const canvasRefs = ref([])
+const gridRef = ref(null)
 let animationIds = []
 
 const techs = [
@@ -1024,8 +1024,8 @@ onMounted(() => {
       })
 
       // 门控连接线（居中匹配）
-      const gOff = (cell.w - 3 * 10 - 2 * 6) / 2
       cells.forEach((cell, ci) => {
+        const gOff = (cell.w - 3 * 10 - 2 * 6) / 2
         const fCx = cell.x + gOff + 5, iCx = cell.x + gOff + 21, oCx = cell.x + gOff + 37
         ctx.strokeStyle = `rgba(255,100,100,${0.06 + Math.sin(time * 0.06 + ci) * 0.04})`; ctx.lineWidth = 0.5
         ctx.beginPath(); ctx.moveTo(fCx, cell.y - 3); ctx.lineTo(fCx, stateY); ctx.stroke()
@@ -1312,15 +1312,12 @@ onMounted(() => {
 
   // 启动所有动画
   const starters = [startLLM, startDiffusion, startCV, startRL, startGAN, startKG, startMultimodal, startEmbodied, startNeuroSym, startLSTM, startVideo, startAIScience]
-  const started = new Set()
-  function tryInit() {
-    const refs = canvasRefs.value
-    starters.forEach((fn, i) => {
-      if (refs[i] && !started.has(i)) { fn(refs[i]); started.add(i) }
-    })
-    if (started.size < starters.length) setTimeout(tryInit, 200)
-  }
-  setTimeout(tryInit, 100)
+  nextTick(() => {
+    const canvases = gridRef.value && gridRef.value.querySelectorAll('canvas')
+    if (canvases) {
+      starters.forEach((fn, i) => { if (canvases[i]) fn(canvases[i]) })
+    }
+  })
 })
 
 onUnmounted(() => {
