@@ -28,9 +28,11 @@ const techs = [
   { name: 'Computer Vision', desc: 'Detection & Recognition' },
   { name: 'Reinforcement Learning', desc: 'Agent Policy Optimization' },
   { name: 'GAN', desc: 'Generator vs Discriminator' },
-  { name: 'Knowledge Graph', desc: 'Entity Relation Network' },
+  { name: 'LLM Reasoning', desc: 'Chain-of-Thought Planning' },
   { name: 'Multimodal AI', desc: 'Vision-Language Alignment' },
   { name: 'Embodied AI', desc: 'Perception-Action Loop' },
+  { name: 'Neuro-Symbolic', desc: 'Neural + Logic Reasoning' },
+  { name: 'LSTM', desc: 'Long Short-Term Memory' },
 ]
 
 onMounted(() => {
@@ -247,68 +249,187 @@ onMounted(() => {
     frame()
   }
 
-  // ====== 6. Knowledge Graph ======
+  // ====== 6. LLM Reasoning & Planning ======
   function startKG(cvs) {
     const ctx = initCanvas(cvs)
     let time = 0
-    const entities = [
-      { label: 'AI', x: W / 2, y: H / 2, r: 6, hue: 185 },
-      { label: 'NLP', x: W / 2 - 80, y: 50, r: 5, hue: 270 },
-      { label: 'CV', x: W / 2 + 80, y: 55, r: 5, hue: 140 },
-      { label: 'RL', x: W / 2 - 90, y: H - 50, r: 5, hue: 45 },
-      { label: 'ML', x: W / 2 + 85, y: H - 55, r: 5, hue: 320 },
-      { label: 'DL', x: W / 2 - 20, y: 40, r: 4, hue: 200 },
-      { label: 'GAN', x: W / 2 + 30, y: H - 40, r: 4, hue: 270 },
-      { label: 'LLM', x: 40, y: H / 2 - 15, r: 4, hue: 185 },
-      { label: 'CNN', x: W - 40, y: H / 2 + 10, r: 4, hue: 140 },
-      { label: 'RNN', x: 60, y: H / 2 + 40, r: 3, hue: 45 },
-      { label: 'Attn', x: W - 55, y: H / 2 - 35, r: 3, hue: 200 },
-      { label: 'BERT', x: 50, y: 70, r: 3, hue: 270 },
+
+    // Chain-of-Thought 节点（左→右推理链）
+    const cotSteps = [
+      { x: 30,  y: H / 2, label: 'Q', hue: 185, r: 10 },
+      { x: 80,  y: H / 2 - 20, label: 'T1', hue: 200, r: 8 },
+      { x: 130, y: H / 2 + 15, label: 'T2', hue: 220, r: 8 },
+      { x: 180, y: H / 2 - 10, label: 'T3', hue: 240, r: 8 },
+      { x: 230, y: H / 2 + 5,  label: 'A', hue: 140, r: 10 },
     ]
-    const edges = [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[1,5],[1,7],[1,11],[2,5],[2,8],[2,10],[3,4],[4,5],[4,6],[5,6],[7,11],[8,10]]
-    let pulses = []
+
+    // 规划树（上方）：从 Plan 根节点分出分支
+    const planRoot = { x: 140, y: 28 }
+    const planBranches = [
+      { x: 70,  y: 60, label: 'S1', chosen: false },
+      { x: 140, y: 55, label: 'S2', chosen: true },
+      { x: 210, y: 60, label: 'S3', chosen: false },
+    ]
+    const planLeaves = [
+      { x: 45,  y: 88, parent: 0 },
+      { x: 95,  y: 88, parent: 0 },
+      { x: 120, y: 83, parent: 1 },
+      { x: 160, y: 83, parent: 1 },
+      { x: 195, y: 88, parent: 2 },
+      { x: 235, y: 88, parent: 2 },
+    ]
+
+    // 思考气泡粒子
+    let particles = []
+    // 链上脉冲
+    let chainPulses = []
+    // 当前高亮步骤
+    let activeStep = 0
+    let stepTimer = 0
 
     function frame() {
       time++; ctx.clearRect(0, 0, W, H)
 
-      // 浮动
-      entities.forEach((e, i) => { e.dx = Math.sin(time * 0.015 + i * 1.2) * 4; e.dy = Math.cos(time * 0.018 + i * 0.9) * 3 })
+      // ---- 上半：规划树 ----
+      ctx.fillStyle = 'rgba(180,130,255,0.35)'; ctx.font = 'bold 7px monospace'
+      ctx.fillText('Plan', planRoot.x - 8, planRoot.y - 4)
 
-      // 边
-      edges.forEach(([a, b]) => {
-        const ea = entities[a], eb = entities[b]
-        const ax = ea.x + (ea.dx || 0), ay = ea.y + (ea.dy || 0)
-        const bx = eb.x + (eb.dx || 0), by = eb.y + (eb.dy || 0)
-        ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by)
-        ctx.strokeStyle = `rgba(0,229,255,${0.08 + Math.sin(time * 0.03 + a + b) * 0.04})`; ctx.lineWidth = 0.8; ctx.stroke()
+      // 根 → 分支连线
+      planBranches.forEach((b, i) => {
+        const chosen = b.chosen
+        ctx.beginPath(); ctx.moveTo(planRoot.x, planRoot.y); ctx.lineTo(b.x, b.y)
+        ctx.strokeStyle = chosen
+          ? `rgba(0,229,255,${0.25 + Math.sin(time * 0.05) * 0.1})`
+          : 'rgba(180,130,255,0.08)'
+        ctx.lineWidth = chosen ? 1.5 : 0.6; ctx.stroke()
+
+        // 分支节点
+        const pulse = chosen ? 0.6 + Math.sin(time * 0.06) * 0.2 : 0.25
+        if (chosen) {
+          const g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, 14)
+          g.addColorStop(0, `rgba(0,229,255,${0.15 * pulse})`); g.addColorStop(1, 'transparent')
+          ctx.fillStyle = g; ctx.beginPath(); ctx.arc(b.x, b.y, 14, 0, Math.PI * 2); ctx.fill()
+        }
+        ctx.fillStyle = chosen ? `rgba(0,229,255,${0.7 * pulse})` : `rgba(180,130,255,${0.25})`
+        ctx.beginPath(); ctx.arc(b.x, b.y, 5, 0, Math.PI * 2); ctx.fill()
+        ctx.fillStyle = chosen ? `rgba(0,229,255,${0.6})` : 'rgba(180,130,255,0.2)'
+        ctx.font = '6px monospace'; ctx.fillText(b.label, b.x - 4, b.y - 8)
       })
 
-      // 发射脉冲
-      if (time % 25 === 0) {
-        const e = edges[Math.floor(Math.random() * edges.length)]
-        pulses.push({ from: e[0], to: e[1], t: 0 })
+      // 分支 → 叶连线
+      planLeaves.forEach(leaf => {
+        const parent = planBranches[leaf.parent]
+        const chosen = parent.chosen
+        ctx.beginPath(); ctx.moveTo(parent.x, parent.y); ctx.lineTo(leaf.x, leaf.y)
+        ctx.strokeStyle = chosen ? 'rgba(0,229,255,0.12)' : 'rgba(180,130,255,0.05)'
+        ctx.lineWidth = 0.5; ctx.stroke()
+        ctx.fillStyle = chosen ? 'rgba(0,229,255,0.3)' : 'rgba(180,130,255,0.12)'
+        ctx.beginPath(); ctx.arc(leaf.x, leaf.y, 2.5, 0, Math.PI * 2); ctx.fill()
+      })
+
+      // ---- 下半：Chain-of-Thought ----
+      // 步骤推进
+      stepTimer++
+      if (stepTimer > 50) { stepTimer = 0; activeStep = (activeStep + 1) % cotSteps.length }
+
+      // 连线
+      for (let i = 0; i < cotSteps.length - 1; i++) {
+        const a = cotSteps[i], b = cotSteps[i + 1]
+        const reached = i < activeStep
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y)
+        ctx.strokeStyle = reached
+          ? `rgba(0,229,255,${0.2 + Math.sin(time * 0.05 + i) * 0.08})`
+          : 'rgba(0,229,255,0.06)'
+        ctx.lineWidth = reached ? 1.2 : 0.5; ctx.stroke()
+
+        // 箭头
+        if (reached) {
+          const angle = Math.atan2(b.y - a.y, b.x - a.x)
+          const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2
+          ctx.save(); ctx.translate(mx, my); ctx.rotate(angle)
+          ctx.fillStyle = `rgba(0,229,255,${0.3})`
+          ctx.beginPath(); ctx.moveTo(5, 0); ctx.lineTo(-3, -3); ctx.lineTo(-3, 3); ctx.closePath(); ctx.fill()
+          ctx.restore()
+        }
       }
-      pulses = pulses.filter(p => {
-        p.t += 0.025; if (p.t > 1) return false
-        const ea = entities[p.from], eb = entities[p.to]
-        const x = (ea.x + (ea.dx || 0)) + ((eb.x + (eb.dx || 0)) - (ea.x + (ea.dx || 0))) * p.t
-        const y = (ea.y + (ea.dy || 0)) + ((eb.y + (eb.dy || 0)) - (ea.y + (ea.dy || 0))) * p.t
-        const g = ctx.createRadialGradient(x, y, 0, x, y, 8)
-        g.addColorStop(0, 'rgba(0,229,255,0.7)'); g.addColorStop(1, 'transparent')
-        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, 8, 0, Math.PI * 2); ctx.fill()
+
+      // 发射链脉冲
+      if (time % 20 === 0 && activeStep > 0) {
+        const idx = Math.min(activeStep - 1, cotSteps.length - 2)
+        chainPulses.push({ from: idx, t: 0 })
+      }
+      chainPulses = chainPulses.filter(p => {
+        p.t += 0.035; if (p.t > 1) return false
+        const a = cotSteps[p.from], b = cotSteps[p.from + 1]
+        const px = a.x + (b.x - a.x) * p.t
+        const py = a.y + (b.y - a.y) * p.t
+        const g = ctx.createRadialGradient(px, py, 0, px, py, 7)
+        g.addColorStop(0, `rgba(0,229,255,${0.7 * (1 - p.t)})`); g.addColorStop(1, 'transparent')
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(px, py, 7, 0, Math.PI * 2); ctx.fill()
         return true
       })
 
-      // 节点
-      entities.forEach(e => {
-        const x = e.x + (e.dx || 0), y = e.y + (e.dy || 0)
-        const pulse = 0.5 + Math.sin(time * 0.04 + e.hue) * 0.2
-        const g = ctx.createRadialGradient(x, y, 0, x, y, e.r * 4)
-        g.addColorStop(0, `hsla(${e.hue},80%,65%,${0.3 * pulse})`); g.addColorStop(1, 'transparent')
-        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, e.r * 4, 0, Math.PI * 2); ctx.fill()
-        ctx.fillStyle = `hsla(${e.hue},80%,65%,${0.7 * pulse})`; ctx.beginPath(); ctx.arc(x, y, e.r, 0, Math.PI * 2); ctx.fill()
-        ctx.fillStyle = `hsla(${e.hue},80%,80%,${0.5 * pulse})`; ctx.font = '7px monospace'; ctx.fillText(e.label, x - ctx.measureText(e.label).width / 2, y - e.r - 4)
+      // CoT 节点
+      cotSteps.forEach((s, i) => {
+        const isActive = i === activeStep
+        const isReached = i <= activeStep
+        const pulse = isActive ? 0.7 + Math.sin(time * 0.1) * 0.3 : (isReached ? 0.55 : 0.2)
+
+        // 光晕
+        if (isReached) {
+          const g = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r * 2.5)
+          g.addColorStop(0, `hsla(${s.hue},80%,65%,${0.2 * pulse})`); g.addColorStop(1, 'transparent')
+          ctx.fillStyle = g; ctx.beginPath(); ctx.arc(s.x, s.y, s.r * 2.5, 0, Math.PI * 2); ctx.fill()
+        }
+
+        // 圆
+        ctx.fillStyle = `hsla(${s.hue},80%,65%,${0.65 * pulse})`
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill()
+
+        // 活跃节点外圈
+        if (isActive) {
+          ctx.strokeStyle = `hsla(${s.hue},80%,70%,${0.4 + Math.sin(time * 0.12) * 0.2})`
+          ctx.lineWidth = 1.5
+          ctx.beginPath(); ctx.arc(s.x, s.y, s.r + 4, 0, Math.PI * 2); ctx.stroke()
+        }
+
+        // 标签
+        ctx.fillStyle = `hsla(${s.hue},80%,75%,${isReached ? 0.7 : 0.25})`
+        ctx.font = isActive ? 'bold 8px monospace' : '7px monospace'
+        ctx.fillText(s.label, s.x - ctx.measureText(s.label).width / 2, s.y + s.r + 12)
       })
+
+      // 思考气泡（活跃节点上方冒出小气泡）
+      if (time % 8 === 0 && activeStep < cotSteps.length) {
+        const s = cotSteps[activeStep]
+        particles.push({
+          x: s.x + (Math.random() - 0.5) * 10,
+          y: s.y - s.r - 5,
+          vy: -0.4 - Math.random() * 0.3,
+          life: 30 + Math.random() * 20,
+          age: 0,
+          r: 1.5 + Math.random() * 1.5,
+        })
+      }
+      particles = particles.filter(p => {
+        p.age++; p.y += p.vy; p.x += Math.sin(p.age * 0.15) * 0.3
+        if (p.age > p.life) return false
+        const alpha = (1 - p.age / p.life) * 0.5
+        ctx.fillStyle = `rgba(0,229,255,${alpha})`
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r * (1 - p.age / p.life * 0.5), 0, Math.PI * 2); ctx.fill()
+        return true
+      })
+
+      // 底部标签
+      const labels = ['Think', 'Reason', 'Plan']
+      const lColors = ['rgba(0,229,255,', 'rgba(180,130,255,', 'rgba(0,230,118,']
+      labels.forEach((l, i) => {
+        const active = Math.floor((time / 60) % 3) === i
+        ctx.fillStyle = `${lColors[i]}${active ? 0.7 : 0.25})`
+        ctx.font = `${active ? 'bold ' : ''}7px monospace`
+        ctx.fillText(l, 20 + i * 48, H - 8)
+      })
+
       animationIds[5] = requestAnimationFrame(frame)
     }
     frame()
@@ -608,8 +729,213 @@ onMounted(() => {
     frame()
   }
 
+  // ====== 9. Neuro-Symbolic Learning ======
+  function startNeuroSym(cvs) {
+    const ctx = initCanvas(cvs)
+    let time = 0
+
+    // 左侧：神经网络 3 层
+    const layers = [
+      Array.from({ length: 4 }, (_, i) => ({ x: 42, y: 35 + i * 40 })),
+      Array.from({ length: 4 }, (_, i) => ({ x: 88, y: 35 + i * 40 })),
+      Array.from({ length: 3 }, (_, i) => ({ x: 134, y: 50 + i * 40 })),
+    ]
+
+    // 右侧：逻辑符号
+    const symbols = [
+      { x: 192, y: 42, s: '∀', hue: 270 },
+      { x: 228, y: 42, s: '∃', hue: 270 },
+      { x: 192, y: 82, s: '→', hue: 290 },
+      { x: 228, y: 82, s: '∧', hue: 290 },
+      { x: 192, y: 122, s: '¬', hue: 310 },
+      { x: 228, y: 122, s: '∨', hue: 310 },
+      { x: 210, y: 158, s: '⊢', hue: 250 },
+    ]
+    const symEdges = [[0,2],[1,3],[2,4],[3,5],[4,6],[5,6]]
+    const bridges = [[0,0],[0,2],[1,3],[1,4],[2,5],[2,6]]
+    let sparks = []
+
+    function frame() {
+      time++; ctx.clearRect(0, 0, W, H)
+
+      ctx.fillStyle = 'rgba(0,229,255,0.35)'; ctx.font = 'bold 7px monospace'; ctx.fillText('Neural', 48, 20)
+      ctx.fillStyle = 'rgba(180,130,255,0.35)'; ctx.fillText('Symbolic', 192, 20)
+
+      // 分隔虚线
+      ctx.strokeStyle = 'rgba(0,229,255,0.08)'; ctx.lineWidth = 1; ctx.setLineDash([3,4])
+      ctx.beginPath(); ctx.moveTo(162, 25); ctx.lineTo(162, H - 8); ctx.stroke(); ctx.setLineDash([])
+
+      // 神经网络连线 + 节点
+      for (let l = 0; l < layers.length - 1; l++) {
+        layers[l].forEach(a => { layers[l+1].forEach(b => {
+          ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y)
+          ctx.strokeStyle = `rgba(0,229,255,${0.05 + Math.sin(time*0.04+a.y+b.y)*0.03})`; ctx.lineWidth = 0.5; ctx.stroke()
+        })})
+      }
+      layers.forEach((layer, l) => layer.forEach((n, i) => {
+        const p = 0.5 + Math.sin(time*0.06+l*2+i)*0.25
+        const g = ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,14)
+        g.addColorStop(0, `rgba(0,229,255,${0.15*p})`); g.addColorStop(1, 'transparent')
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(n.x,n.y,14,0,Math.PI*2); ctx.fill()
+        ctx.fillStyle = `rgba(0,229,255,${0.6*p})`; ctx.beginPath(); ctx.arc(n.x,n.y,4.5,0,Math.PI*2); ctx.fill()
+      }))
+
+      // 桥接连线
+      const last = layers[2]
+      bridges.forEach(([ni,si]) => {
+        ctx.beginPath(); ctx.moveTo(last[ni].x,last[ni].y); ctx.lineTo(symbols[si].x,symbols[si].y)
+        ctx.strokeStyle = `rgba(124,77,255,${0.07+Math.sin(time*0.03+ni+si)*0.04})`; ctx.lineWidth = 0.6; ctx.stroke()
+      })
+
+      // 桥接脉冲
+      if (time % 28 === 0) { const b = bridges[Math.floor(Math.random()*bridges.length)]; sparks.push({ n:b[0], s:b[1], t:0 }) }
+      sparks = sparks.filter(sp => {
+        sp.t += 0.03; if (sp.t > 1) return false
+        const a = last[sp.n], b = symbols[sp.s]
+        const px = a.x+(b.x-a.x)*sp.t, py = a.y+(b.y-a.y)*sp.t
+        const g = ctx.createRadialGradient(px,py,0,px,py,6)
+        g.addColorStop(0, `rgba(124,77,255,${0.8*(1-sp.t)})`); g.addColorStop(1, 'transparent')
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(px,py,6,0,Math.PI*2); ctx.fill()
+        return true
+      })
+
+      // 逻辑连线
+      symEdges.forEach(([a,b]) => {
+        ctx.beginPath(); ctx.moveTo(symbols[a].x,symbols[a].y); ctx.lineTo(symbols[b].x,symbols[b].y)
+        ctx.strokeStyle = `rgba(180,130,255,${0.05+Math.sin(time*0.035+a)*0.03})`; ctx.lineWidth = 0.5; ctx.stroke()
+      })
+
+      // 逻辑符号节点
+      symbols.forEach((ln,i) => {
+        const p = 0.5 + Math.sin(time*0.05+i*1.3)*0.25
+        const g = ctx.createRadialGradient(ln.x,ln.y,0,ln.x,ln.y,14)
+        g.addColorStop(0, `hsla(${ln.hue},80%,70%,${0.12*p})`); g.addColorStop(1, 'transparent')
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(ln.x,ln.y,14,0,Math.PI*2); ctx.fill()
+        ctx.strokeStyle = `hsla(${ln.hue},70%,65%,${0.25*p})`; ctx.lineWidth = 1
+        ctx.beginPath(); ctx.arc(ln.x,ln.y,9,0,Math.PI*2); ctx.stroke()
+        ctx.fillStyle = `hsla(${ln.hue},80%,75%,${0.75*p})`; ctx.font = 'bold 10px serif'
+        ctx.fillText(ln.s, ln.x-ctx.measureText(ln.s).width/2, ln.y+4)
+      })
+
+      // 底部推理
+      const ip = 0.4 + Math.sin(time*0.06)*0.3
+      ctx.fillStyle = `rgba(0,230,118,${0.4*ip})`; ctx.font = '7px monospace'
+      ctx.fillText('Infer: P(x) → Q(x)', 158, H - 6)
+
+      animationIds[8] = requestAnimationFrame(frame)
+    }
+    frame()
+  }
+
+  // ====== 10. LSTM ======
+  function startLSTM(cvs) {
+    const ctx = initCanvas(cvs)
+    let time = 0
+
+    // 4 个时间步展开
+    const cells = Array.from({ length: 4 }, (_, i) => ({
+      x: 38 + i * 62, y: H / 2, w: 48, h: 60,
+    }))
+
+    const gateLabels = ['f', 'i', 'o']
+    const gateColors = ['rgba(255,100,100,', 'rgba(0,229,255,', 'rgba(0,230,118,']
+
+    let flowParticles = []
+    let cellStateParticles = []
+
+    function frame() {
+      time++; ctx.clearRect(0, 0, W, H)
+      const cellY = H / 2
+
+      // Cell State 线
+      const stateY = cellY - 38
+      ctx.strokeStyle = `rgba(255,180,0,${0.15 + Math.sin(time * 0.04) * 0.05})`
+      ctx.lineWidth = 2; ctx.beginPath()
+      ctx.moveTo(cells[0].x - 10, stateY)
+      ctx.lineTo(cells[cells.length - 1].x + cells[0].w + 10, stateY)
+      ctx.stroke()
+      ctx.fillStyle = 'rgba(255,180,0,0.3)'; ctx.font = '6px monospace'
+      ctx.fillText('Cell State (C_t)', cells[0].x, stateY - 6)
+
+      // Hidden State 线
+      const hiddenY = cellY + 38
+      ctx.strokeStyle = `rgba(0,229,255,${0.1 + Math.sin(time * 0.035) * 0.04})`
+      ctx.lineWidth = 1.5; ctx.beginPath()
+      ctx.moveTo(cells[0].x - 10, hiddenY)
+      ctx.lineTo(cells[cells.length - 1].x + cells[0].w + 10, hiddenY)
+      ctx.stroke()
+      ctx.fillStyle = 'rgba(0,229,255,0.25)'; ctx.fillText('Hidden (h_t)', cells[0].x, hiddenY + 12)
+
+      // 每个 LSTM 单元
+      cells.forEach((cell, ci) => {
+        const cx = cell.x, cy = cell.y
+        const pulse = 0.5 + Math.sin(time * 0.05 + ci * 1.5) * 0.2
+
+        ctx.strokeStyle = `rgba(0,229,255,${0.15 * pulse})`; ctx.lineWidth = 1
+        ctx.strokeRect(cx, cy - 24, cell.w, cell.h - 12)
+
+        gateLabels.forEach((g, gi) => {
+          const gx = cx + 6 + gi * 16, gy = cy - 8
+          const gateActive = Math.sin(time * 0.07 + ci * 2 + gi * 1.3) > 0
+          const gAlpha = gateActive ? 0.6 * pulse : 0.15
+
+          ctx.fillStyle = `${gateColors[gi]}${gAlpha})`
+          ctx.beginPath(); ctx.arc(gx + 5, gy + 5, 5, 0, Math.PI * 2); ctx.fill()
+
+          ctx.fillStyle = `${gateColors[gi]}${gAlpha + 0.1})`
+          ctx.font = 'bold 7px serif'; ctx.fillText('σ', gx + 2, gy + 8)
+
+          ctx.fillStyle = `${gateColors[gi]}0.35)`
+          ctx.font = '5px monospace'; ctx.fillText(g, gx + 4, gy + 18)
+        })
+
+        ctx.fillStyle = `rgba(180,130,255,${0.4 * pulse})`; ctx.font = '7px monospace'
+        ctx.fillText(`t${ci}`, cx + cell.w / 2 - 4, cy + cell.h - 26)
+      })
+
+      // Cell State 流粒子
+      if (time % 12 === 0) cellStateParticles.push({ x: cells[0].x - 10, y: stateY, speed: 1.2 + Math.random() * 0.5 })
+      cellStateParticles = cellStateParticles.filter(p => {
+        p.x += p.speed; if (p.x > cells[cells.length - 1].x + cells[0].w + 20) return false
+        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, 5)
+        g.addColorStop(0, 'rgba(255,180,0,0.6)'); g.addColorStop(1, 'transparent')
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI * 2); ctx.fill()
+        return true
+      })
+
+      // Hidden State 流粒子
+      if (time % 18 === 0) flowParticles.push({ x: cells[0].x - 10, y: hiddenY, speed: 0.9 + Math.random() * 0.4 })
+      flowParticles = flowParticles.filter(p => {
+        p.x += p.speed; if (p.x > cells[cells.length - 1].x + cells[0].w + 20) return false
+        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, 4)
+        g.addColorStop(0, 'rgba(0,229,255,0.5)'); g.addColorStop(1, 'transparent')
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI * 2); ctx.fill()
+        return true
+      })
+
+      // 门控连接线
+      cells.forEach((cell, ci) => {
+        ctx.strokeStyle = `rgba(255,100,100,${0.06 + Math.sin(time * 0.06 + ci) * 0.04})`; ctx.lineWidth = 0.5
+        ctx.beginPath(); ctx.moveTo(cell.x + 11, cell.y - 3); ctx.lineTo(cell.x + 11, stateY); ctx.stroke()
+        ctx.strokeStyle = `rgba(0,229,255,${0.06 + Math.sin(time * 0.06 + ci + 1) * 0.04})`
+        ctx.beginPath(); ctx.moveTo(cell.x + 27, cell.y - 3); ctx.lineTo(cell.x + 27, stateY); ctx.stroke()
+        ctx.strokeStyle = `rgba(0,230,118,${0.06 + Math.sin(time * 0.06 + ci + 2) * 0.04})`
+        ctx.beginPath(); ctx.moveTo(cell.x + 43, cell.y + 13); ctx.lineTo(cell.x + 43, hiddenY); ctx.stroke()
+      })
+
+      // 输入标签
+      ctx.fillStyle = 'rgba(180,130,255,0.3)'; ctx.font = '7px monospace'
+      cells.forEach((cell, ci) => {
+        ctx.fillText(`x${ci}`, cell.x + cell.w / 2 - 4, cell.y + cell.h - 12)
+      })
+
+      animationIds[9] = requestAnimationFrame(frame)
+    }
+    frame()
+  }
+
   // 启动所有动画
-  const starters = [startLLM, startDiffusion, startCV, startRL, startGAN, startKG, startMultimodal, startEmbodied]
+  const starters = [startLLM, startDiffusion, startCV, startRL, startGAN, startKG, startMultimodal, startEmbodied, startNeuroSym, startLSTM]
   setTimeout(() => {
     const refs = canvasRefs.value
     starters.forEach((fn, i) => { if (refs[i]) fn(refs[i]) })
@@ -687,6 +1013,8 @@ onUnmounted(() => {
 .tech-card:nth-child(6) { animation-delay: 1.2s; }
 .tech-card:nth-child(7) { animation-delay: 1.32s; }
 .tech-card:nth-child(8) { animation-delay: 1.44s; }
+.tech-card:nth-child(9) { animation-delay: 1.56s; }
+.tech-card:nth-child(10) { animation-delay: 1.68s; }
 
 @keyframes card-in {
   from { opacity: 0; transform: translateY(30px) scale(0.95); filter: blur(6px); }
@@ -739,6 +1067,8 @@ onUnmounted(() => {
 .tech-card:nth-child(6) .tech-name { animation-delay: 3.0s; }
 .tech-card:nth-child(7) .tech-name { animation-delay: 3.6s; }
 .tech-card:nth-child(8) .tech-name { animation-delay: 4.2s; }
+.tech-card:nth-child(9) .tech-name { animation-delay: 4.8s; }
+.tech-card:nth-child(10) .tech-name { animation-delay: 5.4s; }
 
 @keyframes name-glow {
   0%, 100% { text-shadow: 0 0 0 transparent; }
