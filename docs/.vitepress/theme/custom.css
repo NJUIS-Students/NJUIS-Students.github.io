@@ -513,6 +513,10 @@
   line-height: 1.74;
 }
 
+.vp-doc .course-card__text--continuation {
+  margin-top: 0.42rem;
+}
+
 .vp-doc .course-card__stats {
   margin: 1.32rem 0 0;
   padding: 0;
@@ -528,7 +532,7 @@
   border: 1px solid rgba(255, 255, 255, 0.62);
   background: linear-gradient(125deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.5));
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.86), 0 10px 22px -18px rgba(56, 79, 144, 0.42);
-  padding: 0.88rem 1.22rem;
+  padding: 0.88rem 1.28rem 0.88rem 1.42rem;
   animation: course-stats-breathe 7.2s ease-in-out infinite;
   transition: transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease;
 }
@@ -588,7 +592,7 @@
 
 .vp-doc .course-card__stats .course-card__stats-item--wide {
   grid-column: 1 / -1;
-  padding-left: 1.36rem;
+  padding-left: 1.52rem;
 }
 
 .vp-doc .course-card__subsection {
@@ -729,6 +733,34 @@
   height: 5px;
   border-radius: 999px;
   background: rgba(77, 110, 188, 0.48);
+}
+
+.vp-doc .course-card__list > li.course-card__term-item,
+.vp-doc .course-card__sublist > li.course-card__term-item {
+  padding-left: 0;
+}
+
+.vp-doc .course-card__list > li.course-card__term-item::before,
+.vp-doc .course-card__sublist > li.course-card__term-item::before {
+  content: none;
+}
+
+.vp-doc .course-card__term-subtitle {
+  display: inline-block;
+  margin: 0.06rem 0 0.2rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(98, 116, 156, 0.86);
+  font-size: 0.9rem;
+  line-height: 1.35;
+  font-weight: 620;
+  letter-spacing: 0.01em;
+}
+
+.vp-doc .course-card__term-item > .course-card__sublist,
+.vp-doc .course-card__term-item > .course-card__list {
+  margin-top: 0.02rem;
 }
 
 .vp-doc a.course-card__button,
@@ -966,8 +998,8 @@
   margin-top: 0.7rem;
   padding: 0.9rem;
   border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.68);
-  background: linear-gradient(125deg, rgba(247, 249, 253, 0.68), rgba(237, 241, 249, 0.78));
+  border: 1px solid rgba(225, 232, 245, 0.88);
+  background: linear-gradient(120deg, rgba(246, 248, 252, 0.92), rgba(239, 243, 250, 0.92));
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -975,8 +1007,8 @@
 }
 
 .dark .vp-doc .course-card__resource-row {
-  border-color: rgba(255, 255, 255, 0.16);
-  background: linear-gradient(125deg, rgba(255, 255, 255, 0.04), rgba(129, 145, 181, 0.14));
+  border-color: rgba(140, 156, 190, 0.2);
+  background: linear-gradient(120deg, rgba(38, 48, 70, 0.5), rgba(30, 40, 62, 0.5));
 }
 
 .vp-doc .course-card__resource-text {
@@ -992,34 +1024,34 @@
   padding: 0.5rem 0.86rem;
   border-radius: 14px;
   font-size: 0.9rem;
-  border: 1px solid rgba(154, 169, 201, 0.46);
-  background: linear-gradient(145deg, rgba(197, 207, 227, 0.74), rgba(182, 194, 220, 0.82));
-  color: #4b5f87 !important;
-  box-shadow: 0 6px 14px -11px rgba(74, 87, 119, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(173, 185, 212, 0.56);
+  background: linear-gradient(145deg, rgba(209, 218, 235, 0.86), rgba(195, 206, 228, 0.9));
+  color: #465b84 !important;
+  box-shadow: 0 6px 14px -11px rgba(74, 87, 119, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.62);
   animation: repo-breathe 4.2s ease-in-out infinite;
   will-change: transform, box-shadow, background;
 }
 
 .vp-doc a.course-card__button.course-card__button--repo::after {
   margin-left: 0.3rem;
-  color: rgba(75, 95, 135, 0.86);
+  color: rgba(70, 91, 132, 0.86);
   opacity: 1;
   text-shadow: none;
 }
 
 .vp-doc a.course-card__button.course-card__button--repo:hover {
   filter: none;
-  background: linear-gradient(145deg, rgba(205, 214, 231, 0.82), rgba(190, 201, 224, 0.9));
-  color: #455b86 !important;
-  box-shadow: 0 7px 16px -11px rgba(74, 87, 119, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.56);
+  background: linear-gradient(145deg, rgba(216, 224, 239, 0.9), rgba(201, 212, 232, 0.93));
+  color: #3f557e !important;
+  box-shadow: 0 7px 16px -11px rgba(74, 87, 119, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.66);
 }
 
 .dark .vp-doc a.course-card__button.course-card__button--repo,
 .dark .vp-doc a.course-card__button.course-card__button--repo:visited {
-  border-color: rgba(141, 160, 198, 0.28);
-  background: linear-gradient(145deg, rgba(154, 169, 201, 0.4) 0%, rgba(135, 151, 188, 0.45) 55%, rgba(123, 139, 177, 0.5) 100%);
-  color: #dbe6ff !important;
-  box-shadow: 0 10px 20px -16px rgba(16, 22, 36, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.09);
+  border-color: rgba(153, 170, 205, 0.38);
+  background: linear-gradient(145deg, rgba(118, 137, 174, 0.44), rgba(106, 124, 160, 0.48));
+  color: #e2ebff !important;
+  box-shadow: 0 10px 20px -16px rgba(14, 20, 34, 0.72), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .dark .vp-doc a.course-card__button.course-card__button--repo::after {
@@ -1225,7 +1257,44 @@
 }
 
 .dark .vp-doc .course-card__alert {
-  border-color: rgba(135, 157, 202, 0.3);
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(124, 145, 188, 0.32);
+  background: linear-gradient(135deg, rgba(52, 72, 118, 0.42), rgba(34, 50, 84, 0.36) 58%, rgba(27, 41, 72, 0.34));
+  box-shadow:
+    0 12px 24px -22px rgba(5, 11, 28, 0.84),
+    inset 0 1px 0 rgba(255, 255, 255, 0.09),
+    inset 0 -1px 0 rgba(92, 118, 176, 0.2);
+  color: rgba(226, 236, 252, 0.94);
+  padding: 0.84rem 1rem 0.9rem 1.08rem;
+}
+
+.dark .vp-doc .course-card__alert::before {
+  content: "";
+  position: absolute;
+  left: 0.55rem;
+  top: 0.62rem;
+  bottom: 0.62rem;
+  width: 3px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(158, 192, 252, 0.8), rgba(126, 155, 221, 0.46));
+  box-shadow: 0 0 0 1px rgba(145, 175, 235, 0.12), 0 0 14px rgba(121, 153, 222, 0.24);
+}
+
+.dark .vp-doc .course-card__alert::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 90% at 0% 0%, rgba(170, 198, 247, 0.12), transparent 55%);
+  pointer-events: none;
+}
+
+.dark .vp-doc .course-card__alert > strong:first-child {
+  display: block;
+  margin-bottom: 0.44rem;
+  color: rgba(241, 247, 255, 0.98);
+  font-weight: 760;
+  letter-spacing: 0.02em;
 }
 
 .dark .vp-doc .course-card__panel .course-card__subsection {
@@ -1270,6 +1339,10 @@
 
 .dark .vp-doc .course-card__sublist > li::before {
   background: rgba(160, 197, 255, 0.68);
+}
+
+.dark .vp-doc .course-card__term-subtitle {
+  color: rgba(187, 205, 236, 0.88);
 }
 
 /* ===== 课程卡片轻彩蛋（克制动效） ===== */

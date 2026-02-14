@@ -4,7 +4,7 @@
       <div class="course-card__shell">
         <div class="course-card__meta-row">
           <span class="course-card__pill">专业核心</span>
-          <span class="course-card__pill course-card__pill--soft">平台课（2025级起转选修）</span>
+          <span class="course-card__pill course-card__pill--soft">平台（2025级起转选修）</span>
         </div>
         <p class="course-card__section-label">基本信息</p>
         <p class="course-card__headline">操作系统</p>

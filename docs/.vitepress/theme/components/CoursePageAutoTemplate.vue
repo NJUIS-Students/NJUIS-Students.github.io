@@ -125,6 +125,13 @@ function firstSentence(text: string): string {
   return `${value.slice(0, 80)}…`
 }
 
+function extractCourseIntroText(nodes: Element[]): string {
+  const lines = collectTextLines(nodes)
+  const intro = lines.find((item) => /^课程介绍[：:]/.test(item.text))
+  if (!intro) return ''
+  return cleanText(intro.text.replace(/^课程介绍[：:]/, '').trim())
+}
+
 function extractSummary(nodes: Element[]): string {
   const lines = collectTextLines(nodes)
 
@@ -282,6 +289,7 @@ function normalizeSectionLabel(label: string): string {
   return cleanText(label)
     .replace(/（[^）]*）/g, '')
     .replace(/\([^)]*\)/g, '')
+    .replace(/^课程(?=(教材|参考资料|参考书|书目|推荐阅读|作业参考|课后作业参考|实验参考|实验项目参考|课程任务量参考|任务量参考|课程任务量|项目参考|课程项目参考))/, '')
     .trim()
 }
 
@@ -303,6 +311,79 @@ function decorateList(listEl: Element, depth = 0): void {
   listEl.classList.add(depth === 0 ? 'course-card__list' : 'course-card__sublist')
   const subLists = Array.from(listEl.querySelectorAll(':scope > li > ul, :scope > li > ol'))
   subLists.forEach((sub) => decorateList(sub, depth + 1))
+}
+
+function isTermTagText(text: string): boolean {
+  const value = cleanText(text)
+    .replace(/^[（(]\s*|\s*[）)]$/g, '')
+    .replace(/[：:]$/, '')
+    .trim()
+
+  if (!value || value.length > 34) return false
+  if (!/20\d{2}/.test(value)) return false
+
+  const hasTermToken =
+    /(春季?|夏季?|秋季?|冬季?|上学期|下学期|第一学期|第二学期|学期|学季|学年)/.test(value) ||
+    /以\s*20\d{2}.{0,6}为例/.test(value)
+
+  return hasTermToken
+}
+
+function extractLeadText(li: Element): string {
+  const clone = li.cloneNode(true) as Element
+  for (const sub of Array.from(clone.querySelectorAll(':scope > ul, :scope > ol'))) {
+    sub.remove()
+  }
+  return cleanText(clone.textContent).replace(/[：:]$/, '').trim()
+}
+
+function decorateExperienceList(listEl: Element, depth = 0): void {
+  listEl.classList.add(depth === 0 ? 'course-card__list' : 'course-card__sublist')
+
+  const items = Array.from(listEl.querySelectorAll(':scope > li'))
+  for (const li of items) {
+    const lead = extractLeadText(li)
+    const nested = Array.from(li.querySelectorAll(':scope > ul, :scope > ol'))
+
+    if (isTermTagText(lead)) {
+      li.classList.add('course-card__term-item')
+
+      const keepNodes = Array.from(li.childNodes).filter((node) => {
+        if (node.nodeType !== Node.ELEMENT_NODE) return false
+        const tag = (node as Element).tagName
+        return tag === 'UL' || tag === 'OL'
+      })
+
+      while (li.firstChild) li.removeChild(li.firstChild)
+      li.appendChild(createEl('p', 'course-card__term-subtitle', lead))
+      keepNodes.forEach((node) => li.appendChild(node))
+    }
+
+    nested.forEach((sub) => decorateExperienceList(sub, depth + 1))
+  }
+}
+
+function normalizeExperienceNodes(nodes: Element[]): Element[] {
+  const normalized: Element[] = []
+
+  for (const node of nodes) {
+    const text = cleanText(node.textContent).replace(/[：:]$/, '').trim()
+
+    if (node.tagName === 'P' && isTermTagText(text)) {
+      normalized.push(createEl('p', 'course-card__term-subtitle', text))
+      continue
+    }
+
+    if (node.tagName === 'UL' || node.tagName === 'OL') {
+      decorateExperienceList(node, 0)
+      normalized.push(node)
+      continue
+    }
+
+    normalized.push(node)
+  }
+
+  return normalized
 }
 
 function normalizeMaterialsNodes(nodes: Element[]): Element[] {
@@ -400,6 +481,8 @@ function applyCourseTemplate(): boolean {
 
   const meta = extractMeta(introNodesRaw)
   const summary = extractSummary(introNodesRaw)
+  const introFullText = extractCourseIntroText(introNodesRaw)
+  const mainIntroText = introFullText || summary
   const repo = extractRepo(materialsNodes)
   const introNodes = introNodesRaw.filter((node) => !shouldDropFromIntro(node))
   const panels = splitExperiencePanels(experienceNodes)
@@ -423,7 +506,7 @@ function applyCourseTemplate(): boolean {
 
   primaryShell.appendChild(createEl('p', 'course-card__section-label', '基本信息'))
   primaryShell.appendChild(createEl('p', 'course-card__headline', title))
-  primaryShell.appendChild(createEl('p', 'course-card__text', summary))
+  primaryShell.appendChild(createEl('p', 'course-card__text', mainIntroText))
 
   const stats = createEl('ul', 'course-card__stats')
   const stat1 = createEl('li')
@@ -486,7 +569,7 @@ function applyCourseTemplate(): boolean {
     article.appendChild(createEl('p', 'course-card__subsection', panel.title))
 
     const panelBody = createEl('div', 'course-card__panel-body')
-    panel.nodes.forEach((node) => panelBody.appendChild(node))
+    normalizeExperienceNodes(panel.nodes).forEach((node) => panelBody.appendChild(node))
     article.appendChild(panelBody)
     grid.appendChild(article)
   }
