@@ -4,7 +4,7 @@
       <div class="course-card__shell">
         <div class="course-card__meta-row">
           <span class="course-card__pill">专业核心</span>
-          <span class="course-card__pill course-card__pill--soft">平台课（2025 级起转选修）</span>
+          <span class="course-card__pill course-card__pill--soft">平台课（2025级起转选修）</span>
         </div>
         <p class="course-card__section-label">基本信息</p>
         <p class="course-card__headline">操作系统</p>
@@ -24,7 +24,7 @@
           </li>
           <li class="course-card__stats-item--wide">
             <span class="label">考核方式</span>
-            <span class="value">Lab 30% · 平时 10% · 期末 60%</span>
+            <span class="value">Lab 30% · 平时 10% · 期末考试 60%</span>
           </li>
         </ul>
       </div>
@@ -45,7 +45,7 @@
           </a>
         </div>
 
-        <p class="course-card__subsection">教材</p>
+        <p class="course-card__subsection">课程教材</p>
         <ul class="course-card__list">
           <li><em>Operating Systems: Three Easy Pieces</em></li>
           <li>Remzi H. Arpaci-Dusseau, Andrea C. Arpaci-Dusseau</li>
