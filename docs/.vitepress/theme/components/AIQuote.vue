@@ -1,13 +1,14 @@
 <template>
-  <div v-if="quote" class="ai-quote-bar">
-    <span class="ai-quote-icon">💡</span>
-    <span class="ai-quote-text">"{{ quote.text }}"</span>
+  <div v-if="quote" class="ai-quote-bar" :key="quote.text">
+    <span class="ai-quote-text">
+      <span v-for="(ch, ci) in quoteChars" :key="ci" class="ai-quote-char" :style="{ animationDelay: ci * 25 + 'ms' }">{{ ch }}</span>
+    </span>
     <span class="ai-quote-author">— {{ quote.author }}</span>
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useRoute } from 'vitepress'
 
 const quotes = [
@@ -41,8 +42,16 @@ const quotes = [
 const route = useRoute()
 const quote = ref(null)
 
+const quoteChars = computed(() => {
+  if (!quote.value) return []
+  return ('"' + quote.value.text + '"').split('')
+})
+
 function pickQuote() {
-  quote.value = quotes[Math.floor(Math.random() * quotes.length)]
+  quote.value = null
+  requestAnimationFrame(() => {
+    quote.value = quotes[Math.floor(Math.random() * quotes.length)]
+  })
 }
 
 pickQuote()
@@ -52,26 +61,15 @@ watch(() => route.path, pickQuote)
 <style scoped>
 .ai-quote-bar {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.55rem 1.2rem;
+  padding: 0.6rem 1.2rem;
   background: linear-gradient(90deg, rgba(0,229,255,0.04), rgba(124,77,255,0.06), rgba(0,229,255,0.04));
   border-bottom: 1px solid rgba(0,229,255,0.08);
   font-size: 0.78rem;
-  line-height: 1.4;
+  line-height: 1.5;
   flex-wrap: wrap;
-  animation: quote-in 0.6s ease-out;
-}
-
-@keyframes quote-in {
-  from { opacity: 0; transform: translateY(-6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.ai-quote-icon {
-  flex-shrink: 0;
-  font-size: 0.9rem;
 }
 
 .ai-quote-text {
@@ -80,11 +78,29 @@ watch(() => route.path, pickQuote)
   letter-spacing: 0.01em;
 }
 
+.ai-quote-char {
+  display: inline-block;
+  opacity: 0;
+  animation: char-appear 0.3s ease-out forwards;
+}
+
+@keyframes char-appear {
+  0% { opacity: 0; transform: translateY(6px); filter: blur(4px); }
+  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
 .ai-quote-author {
   color: var(--ai-cyan, #00e5ff);
   font-weight: 600;
   font-size: 0.72rem;
-  opacity: 0.7;
+  opacity: 0;
   white-space: nowrap;
+  animation: author-in 0.5s ease-out forwards;
+  animation-delay: 1.8s;
+}
+
+@keyframes author-in {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 0.7; transform: translateX(0); }
 }
 </style>
