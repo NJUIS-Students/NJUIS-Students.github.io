@@ -1,12 +1,23 @@
 import { defineConfig } from 'vitepress'
-// `.vitepress/config.js`
 import { withSidebar } from 'vitepress-sidebar';
+import mathjax3 from 'markdown-it-mathjax3';
 
 const vitePressOptions = {
-  // VitePress's options here...
   lang: "zh-CN",
   title: "智科全家桶",
   description: "一个面向南京大学智能科学与技术学院同学的民间Wiki",
+  markdown: {
+    config: (md) => {
+      md.use(mathjax3);
+    },
+  },
+  vue: {
+    template: {
+      compilerOptions: {
+        isCustomElement: (tag) => tag.startsWith('mjx-'),
+      },
+    },
+  },
   // rewrites(id: string) {
   //   return id.replace(/(^|\/)\d+\-/g, '$1');
   // },
