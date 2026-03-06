@@ -14,6 +14,9 @@ hero:
       text: 🧬 资源仓库
       link: https://github.com/NJUIS-Students/Resources
     - theme: alt
+      text: 🧬 资源仓库镜像站
+      link: https://resources.sporeking.top/NJUIS-Resources
+    - theme: alt
       text: 🌐 GitHub
       link: https://github.com/NJUIS-Students/NJUIS-Students.github.io
 ---
