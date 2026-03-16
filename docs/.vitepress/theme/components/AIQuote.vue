@@ -48,9 +48,16 @@ const quoteChars = computed(() => {
 })
 
 function pickQuote() {
+  const nextQuote = quotes[Math.floor(Math.random() * quotes.length)]
+
+  if (typeof window === 'undefined') {
+    quote.value = nextQuote
+    return
+  }
+
   quote.value = null
-  requestAnimationFrame(() => {
-    quote.value = quotes[Math.floor(Math.random() * quotes.length)]
+  window.requestAnimationFrame(() => {
+    quote.value = nextQuote
   })
 }
 
