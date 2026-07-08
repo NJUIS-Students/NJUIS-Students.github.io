@@ -1,0 +1,40 @@
+[
+  {
+    "id": "todo-play-1",
+    "name": "TODO：地点待补充",
+    "category": "TODO：类型待补充",
+    "location": "TODO：位置待补充",
+    "price": "TODO：花费预估待补充",
+    "summary": "TODO：一句话简介待补充",
+    "tags": ["TODO：适合场景"],
+    "cover": "",
+    "images": [],
+    "fields": [
+      {
+        "label": "推荐时段",
+        "value": "TODO：待补充"
+      },
+      {
+        "label": "交通方式",
+        "value": "TODO：待补充"
+      },
+      {
+        "label": "预计耗时",
+        "value": "TODO：待补充"
+      },
+      {
+        "label": "返程提醒",
+        "value": "TODO：待补充"
+      },
+      {
+        "label": "花费预估",
+        "value": "TODO：待补充"
+      },
+      {
+        "label": "注意事项",
+        "value": "TODO：待补充"
+      }
+    ],
+    "updated": "TODO：信息更新时间"
+  }
+]

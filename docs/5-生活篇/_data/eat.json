@@ -1,0 +1,38 @@
+[
+  {
+    "id": "todo-eat-1",
+    "name": "TODO：名称待补充",
+    "category": "TODO：类型 / 菜系待补充",
+    "cuisine": "TODO：菜系待补充",
+    "location": "TODO：位置待补充",
+    "price": "TODO：人均待补充",
+    "priceValue": null,
+    "summary": "TODO：一句话简介待补充",
+    "tags": ["TODO：适合场景"],
+    "cover": "",
+    "images": [],
+    "fields": [
+      {
+        "label": "招牌 / 推荐",
+        "value": "TODO：招牌菜或推荐内容待补充"
+      },
+      {
+        "label": "适合场景",
+        "value": "TODO：日常饭 / 聚餐 / 夜宵 / 外卖等场景待补充"
+      },
+      {
+        "label": "是否适合外卖",
+        "value": "TODO：待补充"
+      },
+      {
+        "label": "优点",
+        "value": "TODO：待补充"
+      },
+      {
+        "label": "缺点 / 注意事项",
+        "value": "TODO：待补充"
+      }
+    ],
+    "updated": "TODO：信息更新时间"
+  }
+]
