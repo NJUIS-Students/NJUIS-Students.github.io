@@ -44,7 +44,8 @@ const vitePressSidebarOptions = {
   // VitePress Sidebar's options here...
   // project docs folder (per plugin docs should be '/docs' if docs is under project root)
   documentRootPath: '/docs',
-  collapsed: false,
+  collapsed: true,
+  collapseDepth: 2,
   capitalizeFirst: true,
   // useTitleFromFrontmatter: true,
   sortMenusOrderNumericallyFromTitle: true,
